@@ -69,9 +69,12 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   shutil.unpack_archive("ngrok.zip")
   pathlib.Path("ngrok").chmod(stat.S_IXUSR)
 
-  root_password = secrets.token_urlsafe()
-  user_password = secrets.token_urlsafe()
-  user_name = "colab"
+  #root_password = secrets.token_urlsafe()
+  #user_password = secrets.token_urlsafe()
+  user_name = input ("Enter new username :")
+  root_password = input("Enter new root password :")
+  user_password = input("Enter new user password :")
+  #user_name = "colab"
   print("✂️"*24)
   print(f"root password: {root_password}")
   print(f"{user_name} password: {user_password}")
