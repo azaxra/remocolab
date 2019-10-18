@@ -237,7 +237,7 @@ subprocess.run(
 (pathlib.Path.home() / ".xscreensaver").write_text("mode: off\\n")
 """)
   r = subprocess.run(
-                    ["su", "-c", "python3 vncrun.py", "colab"],
+                    ["su", "-c", "python3 vncrun.py", user_name],
                     check = True,
                     stdout = subprocess.PIPE,
                     universal_newlines = True)
