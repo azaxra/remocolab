@@ -3,6 +3,10 @@ import pathlib, stat, shutil, urllib.request, subprocess, getpass, time
 import secrets, json, re
 import IPython.utils.io
 
+user_name = input ("Enter new username :")
+root_password = input("Enter new root password :")
+user_password = input("Enter new user password :")
+
 def _installPkg(cache, name):
   pkg = cache[name]
   if pkg.is_installed:
@@ -71,9 +75,9 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
 
   #root_password = secrets.token_urlsafe()
   #user_password = secrets.token_urlsafe()
-  user_name = input ("Enter new username :")
-  root_password = input("Enter new root password :")
-  user_password = input("Enter new user password :")
+  #user_name = input ("Enter new username :")
+  #root_password = input("Enter new root password :")
+  #user_password = input("Enter new user password :")
   #user_name = "colab"
   print("✂️"*24)
   print(f"root password: {root_password}")
