@@ -3,7 +3,7 @@ import pathlib, stat, shutil, urllib.request, subprocess, getpass, time
 import secrets, json, re
 import IPython.utils.io
 
-user_name = input("Enter new username")
+user_name = input("Enter new username :")
 root_password = input("Enter new root password :")
 user_password = input("Enter new user password :")
 
