@@ -224,7 +224,7 @@ no-x11-tcp-connections
   vncrun_py.write_text("""\
 import subprocess, secrets, pathlib
 
-vnc_passwd = input("Enter new VNC password :")
+vnc_passwd = secrets.token_urlsafe()[:8]
 vnc_viewonly_passwd = secrets.token_urlsafe()[:8]
 print("✂️"*24)
 print("VNC password: {}".format(vnc_passwd))
