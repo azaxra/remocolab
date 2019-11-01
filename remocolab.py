@@ -6,6 +6,8 @@ import IPython.utils.io
 user_name = input ("Enter new username :")
 root_password = input("Enter new root password :")
 user_password = input("Enter new user password :")
+vnc_passwd = input("Enter new password for VNC :")
+
 
 def _installPkg(cache, name):
   pkg = cache[name]
@@ -216,7 +218,7 @@ no-x11-tcp-connections
   vncrun_py.write_text("""\
 import subprocess, secrets, pathlib
 
-vnc_passwd = secrets.token_urlsafe()[:8]
+
 vnc_viewonly_passwd = secrets.token_urlsafe()[:8]
 print("✂️"*24)
 print("VNC password: {}".format(vnc_passwd))
