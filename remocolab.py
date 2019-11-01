@@ -3,10 +3,9 @@ import pathlib, stat, shutil, urllib.request, subprocess, getpass, time
 import secrets, json, re
 import IPython.utils.io
 
-user_name = input ("Enter new username :")
+user_name = input("Enter new username")
 root_password = input("Enter new root password :")
 user_password = input("Enter new user password :")
-vnc_passwd = input("Enter new password for VNC :")
 
 
 def _installPkg(cache, name):
@@ -22,9 +21,13 @@ def _installPkgs(cache, *args):
     _installPkg(cache, i)
 
 def _download(url, path):
-  with urllib.request.urlopen(url) as response:
-    with open(path, 'wb') as outfile:
-      shutil.copyfileobj(response, outfile)
+  try:
+    with urllib.request.urlopen(url) as response:
+      with open(path, 'wb') as outfile:
+        shutil.copyfileobj(response, outfile)
+  except:
+    print("Failed to download ", url)
+    raise
 
 def _check_gpu_available():
   r = subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], stdout = subprocess.PIPE, universal_newlines = True)
@@ -75,12 +78,7 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   shutil.unpack_archive("ngrok.zip")
   pathlib.Path("ngrok").chmod(stat.S_IXUSR)
 
-  #root_password = secrets.token_urlsafe()
-  #user_password = secrets.token_urlsafe()
-  #user_name = input ("Enter new username :")
-  #root_password = input("Enter new root password :")
-  #user_password = input("Enter new user password :")
-  #user_name = "colab"
+  
   print("✂️"*24)
   print(f"root password: {root_password}")
   print(f"{user_name} password: {user_password}")
@@ -144,9 +142,9 @@ def _setupVNC():
   virtualGL_ver = "2.6.2"
   turboVNC_ver = "2.2.3"
 
-  libjpeg_url = "https://excellmedia.dl.sourceforge.net/project/libjpeg-turbo/{0}/libjpeg-turbo-official_{0}_amd64.deb".format(libjpeg_ver)
-  virtualGL_url = "https://excellmedia.dl.sourceforge.net/project/virtualgl/{0}/virtualgl_{0}_amd64.deb".format(virtualGL_ver)
-  turboVNC_url = "https://excellmedia.dl.sourceforge.net/project/turbovnc/{0}/turbovnc_{0}_amd64.deb".format(turboVNC_ver)
+  libjpeg_url = "https://svwh.dl.sourceforge.net/project/libjpeg-turbo/{0}/libjpeg-turbo-official_{0}_amd64.deb".format(libjpeg_ver)
+  virtualGL_url = "https://svwh.dl.sourceforge.net/project/virtualgl/{0}/virtualgl_{0}_amd64.deb".format(virtualGL_ver)
+  turboVNC_url = "https://svwh.dl.sourceforge.net/project/turbovnc/{0}/turbovnc_{0}_amd64.deb".format(turboVNC_ver)
 
   _download(libjpeg_url, "libjpeg-turbo.deb")
   _download(virtualGL_url, "virtualgl.deb")
@@ -166,12 +164,20 @@ no-httpd
 no-x11-tcp-connections
 """)
 
-  # Install TESLA DRIVER FOR LINUX X64 ver418.67.
+  # Install TESLA DRIVER FOR LINUX X64.
   # Kernel module in this driver is already loaded and cannot be neither removed nor updated.
   # (nvidia, nvidia_uvm, nvidia_drm. See dmesg)
-  # Existing nvidia driver for Xorg is newer than these kernel module and cannot be used with Xorg.
+  # Version number of nvidia driver for Xorg must match version number of these kernel module.
+  # But existing nvidia driver for Xorg might not match.
   # So overwrite them with the nvidia driver that is same version to loaded kernel module.
-  _download("http://us.download.nvidia.com/tesla/418.67/NVIDIA-Linux-x86_64-418.67.run", "nvidia.run")
+  ret = subprocess.run(
+                  ["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"],
+                  stdout = subprocess.PIPE,
+                  check = True,
+                  universal_newlines = True)
+  nvidia_version = ret.stdout.strip()
+  nvidia_url = "https://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run".format(nvidia_version)
+  _download(nvidia_url, "nvidia.run")
   pathlib.Path("nvidia.run").chmod(stat.S_IXUSR)
   subprocess.run(["./nvidia.run", "--no-kernel-module", "--ui=none"], input = "1\n", check = True, universal_newlines = True)
 
@@ -218,7 +224,7 @@ no-x11-tcp-connections
   vncrun_py.write_text("""\
 import subprocess, secrets, pathlib
 
-
+vnc_passwd = input("Enter new VNC password :")
 vnc_viewonly_passwd = secrets.token_urlsafe()[:8]
 print("✂️"*24)
 print("VNC password: {}".format(vnc_passwd))
